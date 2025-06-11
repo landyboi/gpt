@@ -1,0 +1,69 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model users {
+  id            Int            @id @default(autoincrement())
+  username      String         @unique
+  password_hash String         @map("password_hash")
+  created_at    DateTime       @default(now()) @map("created_at")
+  last_login    DateTime?      @map("last_login")
+  sessions      sessions[]
+  messages      messages[]
+  conversations conversations[]
+
+  @@map("users")
+}
+
+model sessions {
+  id            Int      @id @default(autoincrement())
+  user          users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id       Int      @map("user_id")
+  session_token String   @unique @map("session_token")
+  created_at    DateTime @default(now()) @map("created_at")
+  expires_at    DateTime @map("expires_at")
+
+  @@index([user_id])
+  @@map("sessions")
+}
+
+model conversations {
+  id         Int       @id @default(autoincrement())
+  user       users     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id    Int       @map("user_id")
+  title      String    @default("New Conversation")
+  created_at DateTime  @default(now()) @map("created_at")
+  updated_at DateTime  @updatedAt @map("updated_at")
+  messages   messages[]
+
+  @@index([user_id])
+  @@index([updated_at])
+  @@map("conversations")
+}
+
+model messages {
+  id              Int           @id @default(autoincrement())
+  user            users         @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id         Int           @map("user_id")
+  conversation    conversations @relation(fields: [conversation_id], references: [id], onDelete: Cascade)
+  conversation_id Int           @map("conversation_id")
+  content         String
+  created_at      DateTime      @default(now()) @map("created_at")
+  is_ai_response  Boolean       @default(false) @map("is_ai_response")
+
+  @@index([user_id])
+  @@index([conversation_id])
+  @@index([created_at])
+  @@map("messages")
+}
