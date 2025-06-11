@@ -1,36 +1,115 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# GPT Chat Application
+
+A modern chat application built with Next.js, TypeScript, and PostgreSQL, featuring real-time conversations and a clean, responsive UI.
+
+## Features
+
+- 🔐 Secure authentication system
+- 💬 Real-time chat functionality
+- 📱 Responsive design
+- 🎨 Modern UI with Tailwind CSS
+- 🔄 Conversation history
+- 📝 Markdown support in messages
+- 🌙 Dark mode support
+
+## Tech Stack
+
+- **Frontend**: Next.js 14, TypeScript, Tailwind CSS
+- **Backend**: Next.js API Routes
+- **Database**: PostgreSQL
+- **Authentication**: Custom session-based auth
+- **Styling**: Tailwind CSS, shadcn/ui
+- **Development**: Docker, Docker Compose
+
+## Prerequisites
+
+- Node.js 18+ and npm
+- Docker and Docker Compose
+- PostgreSQL (if running locally)
 
 ## Getting Started
 
-First, run the development server:
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd gpt-chat
+   ```
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Set up environment variables:
+   Create a `.env` file in the root directory with the following variables:
+   ```
+   DATABASE_URL=postgresql://postgres:postgres@localhost:5432/gptdev
+   NEXTAUTH_SECRET=your-secret-key
+   ```
+
+4. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+5. Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## Project Structure
+
+```
+src/
+├── app/                    # Next.js app directory
+│   ├── api/               # API routes
+│   │   ├── auth/         # Authentication endpoints
+│   │   └── chat/         # Chat-related endpoints
+│   ├── chat/             # Chat pages
+│   └── login/            # Login page
+├── components/            # React components
+├── lib/                   # Utility functions
+│   ├── db-utils.ts       # Database utilities
+│   └── prisma.ts         # Prisma client
+└── types/                # TypeScript type definitions
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Database Schema
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The application uses PostgreSQL with the following main tables:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `users`: User accounts
+- `sessions`: User sessions
+- `conversations`: Chat conversations
+- `messages`: Individual chat messages
 
-## Learn More
+## Development
 
-To learn more about Next.js, take a look at the following resources:
+### Running Tests
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm test
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Building for Production
 
-## Deploy on Vercel
+```bash
+npm run build
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Docker Support
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+To run the application using Docker:
+
+```bash
+docker-compose up
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
