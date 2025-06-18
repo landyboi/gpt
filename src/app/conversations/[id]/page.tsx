@@ -3,12 +3,17 @@ import { redirect } from 'next/navigation';
 import { validateSession, getConversation } from '@/lib/db-utils';
 import Chat from '@/components/Chat';
 
-type Props = {
-  params: { id: string }
-  searchParams: { [key: string]: string | string[] | undefined }
+interface PageProps {
+  params: {
+    id: string;
+  };
+  searchParams: { [key: string]: string | string[] | undefined };
 }
 
-export default async function ChatPage(props: Props) {
+export default async function ChatPage({
+  params,
+  searchParams,
+}: PageProps) {
   const cookieStore = await cookies();
   const session = cookieStore.get('session');
 
@@ -21,7 +26,7 @@ export default async function ChatPage(props: Props) {
     redirect('/login');
   }
 
-  const conversationId = parseInt(props.params.id);
+  const conversationId = parseInt(params.id);
   if (isNaN(conversationId)) {
     redirect('/conversations');
   }
