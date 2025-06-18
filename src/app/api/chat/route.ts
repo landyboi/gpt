@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
     // Get or create conversation
     let conversation;
     if (conversationId) {
-      conversation = await getConversation(conversationId, user.id);
+      conversation = await getConversation(conversationId);
       if (!conversation) {
         return NextResponse.json(
           { error: 'Conversation not found' },

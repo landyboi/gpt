@@ -3,11 +3,34 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Message } from '@/lib/db-utils';
-import ReactMarkdown from 'react-markdown';
+import ReactMarkdown, { Components } from 'react-markdown';
 
 interface ChatProps {
   conversationId?: number;
 }
+
+type CodeProps = {
+  inline?: boolean;
+  className?: string;
+  children?: React.ReactNode;
+  node?: any;
+  [key: string]: any;
+};
+
+const CodeComponent = ({ node, inline, className, children, ...props }: CodeProps) => {
+  const match = /language-(\w+)/.exec(className || '');
+  return !inline ? (
+    <pre className="bg-gray-100 dark:bg-gray-800 p-4 rounded my-4 overflow-x-auto">
+      <code className={match ? `language-${match[1]}` : ''} {...props}>
+        {children}
+      </code>
+    </pre>
+  ) : (
+    <code className="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded" {...props}>
+      {children}
+    </code>
+  );
+};
 
 export default function Chat({ conversationId }: ChatProps) {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -112,20 +135,7 @@ export default function Chat({ conversationId }: ChatProps) {
             ul: ({ children }) => <ul className="list-disc pl-5 mb-4 space-y-2">{children}</ul>,
             ol: ({ children }) => <ol className="list-decimal pl-5 mb-4 space-y-2">{children}</ol>,
             li: ({ children }) => <li className="mb-1">{children}</li>,
-            code: ({ node, inline, className, children, ...props }) => {
-              const match = /language-(\w+)/.exec(className || '');
-              return !inline ? (
-                <pre className="bg-gray-100 dark:bg-gray-800 p-4 rounded my-4 overflow-x-auto">
-                  <code className={match ? `language-${match[1]}` : ''} {...props}>
-                    {children}
-                  </code>
-                </pre>
-              ) : (
-                <code className="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded" {...props}>
-                  {children}
-                </code>
-              );
-            },
+            code: CodeComponent,
             strong: ({ children }) => <strong className="font-bold">{children}</strong>,
             em: ({ children }) => <em className="italic">{children}</em>,
             h1: ({ children }) => <h1 className="text-2xl font-bold mb-4">{children}</h1>,
@@ -151,12 +161,12 @@ export default function Chat({ conversationId }: ChatProps) {
           <div
             key={message.id}
             className={`flex ${
-              message.is_ai_response ? 'justify-start' : 'justify-end'
+              message.isAiResponse ? 'justify-start' : 'justify-end'
             }`}
           >
             <div
               className={`max-w-[80%] rounded-lg p-4 ${
-                message.is_ai_response
+                message.isAiResponse
                   ? 'bg-gray-100 dark:bg-gray-800'
                   : 'bg-blue-500 text-white'
               }`}

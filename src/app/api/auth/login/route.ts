@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     }
 
     // In a real app, you would hash the password and compare hashes
-    if (password !== user.password) {
+    if (password !== user.password_hash) {
       return NextResponse.json(
         { error: "Invalid username or password" },
         { status: 401 }
