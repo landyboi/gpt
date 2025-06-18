@@ -3,7 +3,14 @@ import { redirect } from 'next/navigation';
 import { validateSession, getConversation } from '@/lib/db-utils';
 import Chat from '@/components/Chat';
 
-export default async function ChatPage({ params }: { params: { id: string } }) {
+interface PageProps {
+  params: {
+    id: string;
+  };
+  searchParams: { [key: string]: string | string[] | undefined };
+}
+
+export default async function ChatPage({ params }: PageProps) {
   const cookieStore = await cookies();
   const session = cookieStore.get('session');
 
