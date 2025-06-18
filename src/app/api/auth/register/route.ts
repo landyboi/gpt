@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
     const user = await prisma.users.create({
       data: {
         username,
-        password: hashedPassword,
+        password_hash: hashedPassword,
         created_at: new Date(),
       },
     });
