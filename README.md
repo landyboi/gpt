@@ -54,6 +54,39 @@ A modern chat application built with Next.js, TypeScript, and PostgreSQL, featur
 
 5. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
+## Docker Setup
+
+1. Copy the example Docker Compose file:
+   ```bash
+   cp docker-compose.example.yml docker-compose.yml
+   ```
+
+2. Update the environment variables in `docker-compose.yml` with your specific configuration:
+   ```yaml
+   environment:
+     - DATABASE_URL=postgresql://your_user:your_password@your_host:5432/your_database
+     - NODE_ENV=production
+     - LLAMA_API_URL=http://llama:11434
+     - LLAMA_MODEL=llama3
+   ```
+
+3. Build and start the containers:
+   ```bash
+   docker-compose up -d --build
+   ```
+
+4. View the logs:
+   ```bash
+   docker-compose logs -f
+   ```
+
+5. Stop the containers:
+   ```bash
+   docker-compose down
+   ```
+
+Note: The `docker-compose.yml` file is gitignored to protect sensitive information. Always use `docker-compose.example.yml` as a template and create your own `docker-compose.yml` with your specific configuration.
+
 ## Project Structure
 
 ```
@@ -92,14 +125,6 @@ npm test
 
 ```bash
 npm run build
-```
-
-### Docker Support
-
-To run the application using Docker:
-
-```bash
-docker-compose up
 ```
 
 ## Contributing
