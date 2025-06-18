@@ -49,13 +49,4 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-}
-
-export async function verifyPassword(username: string, password: string): Promise<boolean> {
-  const user = await prisma.users.findUnique({
-    where: { username },
-    select: { passwordHash: true },
-  });
-  if (!user) return false;
-  return compare(password, user.passwordHash);
 } 
