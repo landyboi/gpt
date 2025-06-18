@@ -4,7 +4,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - DATABASE_URL=postgresql://user:password@host:5432/dbname
+      - DATABASE_URL=${DATABASE_URL}
       - NODE_ENV=production
       - LLAMA_API_URL=http://llama:11434
       - LLAMA_MODEL=llama3
