@@ -5,7 +5,7 @@ services:
       - "3000:3000"
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/postgres
-      - NODE_ENV=production
+      - NODE_ENV=development
       - LLAMA_API_URL=http://llama:11434
       - LLAMA_MODEL=llama3
     depends_on:
