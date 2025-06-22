@@ -21,7 +21,7 @@ services:
       - "11434:11434"
     volumes:
       - ollama_data:/root/.ollama
-    command: sh -c "ollama pull llama3 && ollama serve"
+    command: sh -c "ollama pull llama3"
 
   postgres:
     image: postgres:latest
