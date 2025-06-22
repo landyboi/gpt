@@ -28,8 +28,8 @@ export async function GET() {
     return NextResponse.json({
       id: user.id,
       username: user.username,
-      created_at: user.createdAt,
-      last_login: user.lastLogin,
+      created_at: user.createdAt instanceof Date ? user.createdAt.toISOString() : user.createdAt,
+      last_login: user.lastLogin instanceof Date && user.lastLogin !== null ? user.lastLogin.toISOString() : user.lastLogin,
     });
   } catch (error) {
     console.error('Error fetching profile:', error);

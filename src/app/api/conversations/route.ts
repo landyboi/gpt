@@ -71,7 +71,11 @@ export async function POST(req: NextRequest) {
         title: title || 'New Conversation',
       },
     });
-    return NextResponse.json(conversation);
+    return NextResponse.json({
+      ...conversation,
+      created_at: conversation.created_at.toISOString(),
+      updated_at: conversation.updated_at.toISOString(),
+    });
   } catch (error) {
     console.error('Error creating conversation:', error);
     return NextResponse.json(
