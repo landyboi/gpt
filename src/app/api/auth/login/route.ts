@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { v4 as uuidv4 } from "uuid";
+import bcrypt from 'bcryptjs';
 
 export async function POST(req: NextRequest) {
   try {
@@ -27,7 +28,7 @@ export async function POST(req: NextRequest) {
     }
 
     // In a real app, you would hash the password and compare hashes
-    if (password !== user.password_hash) {
+    if (!await bcrypt.compare(password, user.password_hash)) {
       return NextResponse.json(
         { error: "Invalid username or password" },
         { status: 401 }

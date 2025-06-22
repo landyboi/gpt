@@ -4,14 +4,16 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - DATABASE_URL=${DATABASE_URL}
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/postgres
       - NODE_ENV=production
       - LLAMA_API_URL=http://llama:11434
       - LLAMA_MODEL=llama3
     depends_on:
       - llama
+      - postgres
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    command: sh -c "npx prisma migrate deploy && npm start"
 
   llama:
     image: ollama/ollama:latest
@@ -19,6 +21,20 @@ services:
       - "11434:11434"
     volumes:
       - ollama_data:/root/.ollama
+    command: sh -c "ollama pull llama3 && ollama serve"
+
+  postgres:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 
 volumes:
-  ollama_data: 
+  ollama_data:
+  postgres_data: 
