@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from 'next/headers';
 import { validateSession, createMessage, createConversation, getConversation } from '@/lib/db-utils';
 
-const LLAMA_API_URL = process.env.LLAMA_API_URL || 'http://gptdev:11434';
+const LLAMA_API_URL = process.env.LLAMA_API_URL || 'http://llama:11434';
 const LLAMA_MODEL = process.env.LLAMA_MODEL || 'llama3';
 
 export async function POST(req: NextRequest) {
