@@ -1,8 +1,7 @@
 services:
   app:
     build: .
-    ports:
-      - "3000:3000"
+    # No ports exposed; only accessible to nginx reverse proxy
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/postgres
       - NODE_ENV=production

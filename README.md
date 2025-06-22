@@ -16,76 +16,61 @@ A modern chat application built with Next.js, TypeScript, and PostgreSQL, featur
 
 - **Frontend**: Next.js 14, TypeScript, Tailwind CSS
 - **Backend**: Next.js API Routes
-- **Database**: PostgreSQL
+- **Database**: PostgreSQL (Dockerized)
 - **Authentication**: Custom session-based auth
 - **Styling**: Tailwind CSS, shadcn/ui
-- **Development**: Docker, Docker Compose
+- **Development**: Docker, Docker Compose, Nginx (HTTPS reverse proxy)
 
 ## Prerequisites
 
-- Node.js 18+ and npm
 - Docker and Docker Compose
-- PostgreSQL (if running locally)
+- (Optional) Node.js 18+ and npm (for local development)
 
-## Getting Started
+## Getting Started (Dockerized, with HTTPS)
 
-1. Clone the repository:
+1. **Clone the repository:**
    ```bash
    git clone <repository-url>
    cd gpt-chat
    ```
 
-2. Install dependencies:
+2. **Generate self-signed SSL certificates for Nginx:**
    ```bash
-   npm install
+   ./generate_certs.sh
    ```
+   *(Or run the commands in the script manually on Linux)*
 
-3. Set up environment variables:
-   Create a `.env` file in the root directory with the following variables:
-   ```
-   DATABASE_URL=postgresql://postgres:postgres@localhost:5432/gptdev
-   NEXTAUTH_SECRET=your-secret-key
-   ```
-
-4. Start the development server:
+3. **Start the application stack:**
    ```bash
-   npm run dev
+   docker-compose up --build
    ```
 
-5. Open [http://localhost:3000](http://localhost:3000) in your browser.
+4. **Access the app securely:**
+   - Open [https://localhost](https://localhost) or [https://gptdev](https://gptdev) in your browser.
+   - Accept the self-signed certificate warning (normal for local dev).
 
-## Docker Setup
-
-1. Copy the example Docker Compose file:
+5. **Update and restart containers:**
    ```bash
-   cp docker-compose.example.yml docker-compose.yml
+   ./update_and_restart.sh
    ```
 
-2. Update the environment variables in `docker-compose.yml` with your specific configuration:
-   ```yaml
-   environment:
-     - DATABASE_URL=postgresql://your_user:your_password@your_host:5432/your_database
-     - NODE_ENV=production
-     - LLAMA_API_URL=http://llama:11434
-     - LLAMA_MODEL=llama3
-   ```
+## Environment Variables
 
-3. Build and start the containers:
-   ```bash
-   docker-compose up -d --build
-   ```
+Environment variables are set in `docker-compose.yml` for the app service. Example:
+```yaml
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/postgres
+      - NODE_ENV=production
+      - LLAMA_API_URL=http://llama:11434
+      - LLAMA_MODEL=llama3
+```
 
-4. View the logs:
-   ```bash
-   docker-compose logs -f
-   ```
+## HTTPS & Secure Cookies
 
-5. Stop the containers:
-   ```bash
-   docker-compose down
-   ```
-
-Note: The `docker-compose.yml` file is gitignored to protect sensitive information. Always use `docker-compose.example.yml` as a template and create your own `docker-compose.yml` with your specific configuration.
+- The app is served via HTTPS using Nginx as a reverse proxy.
+- Secure cookies are supported and required for authentication.
+- **Do not access the app via port 3000**; use only `https://localhost` or `https://gptdev`.
+- Port 3000 is internal-only and not exposed to the host.
 
 ## Project Structure
 
@@ -126,6 +111,17 @@ npm test
 ```bash
 npm run build
 ```
+
+## Troubleshooting
+
+- **Secure cookie rejected?**
+  - Make sure you are accessing the app via `https://localhost` or `https://gptdev`.
+  - Do not use `http://` or port 3000 directly.
+  - Accept the self-signed certificate in your browser.
+- **Database not persisting?**
+  - Data is stored in Docker volumes. Only `docker-compose down -v` will erase it.
+- **Update and restart containers:**
+  - Use `./update_and_restart.sh` to pull the latest code and restart everything.
 
 ## Contributing
 
