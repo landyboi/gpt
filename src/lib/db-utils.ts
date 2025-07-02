@@ -13,7 +13,7 @@ export interface Message {
   userId: number;
   conversationId: number;
   content: string;
-  createdAt: Date;
+  createdAt: string; // ISO string format
   isAiResponse: boolean;
 }
 
@@ -21,8 +21,8 @@ export interface Conversation {
   id: number;
   userId: number;
   title: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string; // ISO string format
+  updatedAt: string; // ISO string format
   messages: Message[];
 }
 
@@ -85,6 +85,12 @@ export async function createSession(userId: number): Promise<string> {
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + 7); // 7 days from now
 
+  // Update last login time
+  await prisma.users.update({
+    where: { id: userId },
+    data: { last_login: new Date() },
+  });
+
   await prisma.sessions.create({
     data: {
       user_id: userId,
@@ -128,8 +134,8 @@ export async function createConversation(userId: number, title: string = "New Co
     id: conversation.id,
     userId: conversation.user_id,
     title: conversation.title,
-    createdAt: conversation.created_at,
-    updatedAt: conversation.updated_at,
+    createdAt: conversation.created_at.toISOString(),
+    updatedAt: conversation.updated_at.toISOString(),
     messages: [],
   };
 }
@@ -150,14 +156,14 @@ export async function getConversations(userId: number): Promise<Conversation[]> 
     id: conv.id,
     userId: conv.user_id,
     title: conv.title,
-    createdAt: conv.created_at,
-    updatedAt: conv.updated_at,
+    createdAt: conv.created_at.toISOString(),
+    updatedAt: conv.updated_at.toISOString(),
     messages: (conv.messages as any[]).map(msg => ({
       id: msg.id,
       userId: msg.user_id,
       conversationId: msg.conversation_id,
       content: msg.content,
-      createdAt: msg.created_at,
+      createdAt: msg.created_at.toISOString(),
       isAiResponse: msg.is_ai_response,
     })),
   }));
@@ -179,14 +185,14 @@ export async function getConversation(conversationId: number): Promise<Conversat
     id: conversation.id,
     userId: conversation.user_id,
     title: conversation.title,
-    createdAt: conversation.created_at,
-    updatedAt: conversation.updated_at,
+    createdAt: conversation.created_at.toISOString(),
+    updatedAt: conversation.updated_at.toISOString(),
     messages: (conversation.messages as any[]).map(msg => ({
       id: msg.id,
       userId: msg.user_id,
       conversationId: msg.conversation_id,
       content: msg.content,
-      createdAt: msg.created_at,
+      createdAt: msg.created_at.toISOString(),
       isAiResponse: msg.is_ai_response,
     })),
   };
@@ -213,7 +219,7 @@ export async function createMessage(
     userId: message.user_id,
     conversationId: message.conversation_id,
     content: message.content,
-    createdAt: message.created_at,
+    createdAt: message.created_at.toISOString(),
     isAiResponse: message.is_ai_response,
   };
 }
@@ -229,7 +235,42 @@ export async function getMessages(conversationId: number): Promise<Message[]> {
     userId: msg.user_id,
     conversationId: msg.conversation_id,
     content: msg.content,
-    createdAt: msg.created_at,
+    createdAt: msg.created_at.toISOString(),
     isAiResponse: msg.is_ai_response,
   }));
+}
+
+// Change password operation
+export async function changePassword(userId: number, oldPassword: string, newPassword: string): Promise<boolean> {
+  try {
+    // First verify the old password
+    const user = await prisma.users.findUnique({
+      where: { id: userId },
+      select: { password_hash: true },
+    });
+
+    if (!user) {
+      return false;
+    }
+
+    // Verify old password
+    const isOldPasswordValid = await bcrypt.compare(oldPassword, user.password_hash);
+    if (!isOldPasswordValid) {
+      return false;
+    }
+
+    // Hash new password
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update password
+    await prisma.users.update({
+      where: { id: userId },
+      data: { password_hash: hashedNewPassword },
+    });
+
+    return true;
+  } catch (error) {
+    console.error('Error changing password:', error);
+    return false;
+  }
 }

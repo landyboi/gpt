@@ -1,12 +1,33 @@
 services:
+  # Init container to generate SSL certificates
+  cert-generator:
+    image: alpine:latest
+    volumes:
+      - certs_data:/certs
+    command: >
+      sh -c "
+        apk add --no-cache openssl &&
+        if [ ! -f /certs/selfsigned.crt ]; then
+          echo 'Generating SSL certificates...';
+          openssl req -x509 -nodes -days ${SSL_CERT_DAYS:-365} -newkey rsa:${SSL_KEY_SIZE:-2048} -keyout /certs/selfsigned.key -out /certs/selfsigned.crt -subj '${SSL_SUBJECT:-/CN=localhost}';
+          echo 'SSL certificates generated successfully';
+        else
+          echo 'SSL certificates already exist, skipping generation';
+        fi
+      "
+    environment:
+      - SSL_CERT_DAYS=${SSL_CERT_DAYS}
+      - SSL_KEY_SIZE=${SSL_KEY_SIZE}
+      - SSL_SUBJECT=${SSL_SUBJECT}
+
   app:
     build: .
     # No ports exposed; only accessible to nginx reverse proxy
     environment:
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/postgres
-      - NODE_ENV=production
-      - LLAMA_API_URL=http://llama:11434
-      - LLAMA_MODEL=llama3
+      - DATABASE_URL=${DATABASE_URL}
+      - NODE_ENV=${NODE_ENV}
+      - LLAMA_API_URL=${LLAMA_API_URL}
+      - LLAMA_MODEL=${LLAMA_MODEL}
     depends_on:
       - llama
       - postgres
@@ -20,9 +41,10 @@ services:
       - "443:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/certs:/etc/nginx/certs:ro
+      - certs_data:/etc/nginx/certs:ro
     depends_on:
       - app
+      - cert-generator
 
   llama:
     image: ollama/ollama:latest
@@ -30,16 +52,16 @@ services:
       - "11434:11434"
     volumes:
       - ollama_data:/root/.ollama
-    entrypoint: ["/bin/sh", "-c"]
-    command: "ollama pull llama3 && ollama serve"
+    entrypoint: ["/usr/bin/ollama"]
+    command: ["serve"]
 
   postgres:
     image: postgres:latest
     restart: always
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: postgres
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "5432:5432"
     volumes:
@@ -47,4 +69,5 @@ services:
 
 volumes:
   ollama_data:
-  postgres_data: 
+  postgres_data:
+  certs_data: 

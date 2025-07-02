@@ -5,16 +5,18 @@ import Link from 'next/link';
 type Conversation = {
   id: string;
   title: string;
-  created_at: string;
-  updated_at: string;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export default function ConversationsPage() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     fetchConversations();
   }, []);
 
@@ -29,6 +31,29 @@ export default function ConversationsPage() {
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Only format dates after component is mounted to avoid hydration issues
+  const formatDate = (isoString: string) => {
+    if (!mounted) return 'Loading...';
+    
+    if (!isoString || typeof isoString !== 'string') {
+      return 'No date';
+    }
+    
+    try {
+      const date = new Date(isoString);
+      
+      if (isNaN(date.getTime())) {
+        return 'Invalid date';
+      }
+      
+      // Use simple format
+      return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+    } catch (error) {
+      console.error('Date formatting error:', error);
+      return 'Format error';
     }
   };
 
@@ -59,7 +84,7 @@ export default function ConversationsPage() {
             >
               <h2 className="text-lg font-semibold">{conversation.title}</h2>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                Created: {new Date(conversation.created_at).toLocaleString()}
+                Created: {formatDate(conversation.createdAt)}
               </p>
             </Link>
           ))

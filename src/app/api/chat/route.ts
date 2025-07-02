@@ -56,12 +56,6 @@ export async function POST(req: NextRequest) {
     // Save user message
     await createMessage(user.id, conversation.id, message, false);
 
-    console.log('Sending request to Llama API:', {
-      url: `${LLAMA_API_URL}/api/generate`,
-      model: LLAMA_MODEL,
-      message
-    });
-
     const llamaRes = await fetch(`${LLAMA_API_URL}/api/generate`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -85,7 +79,6 @@ export async function POST(req: NextRequest) {
     }
 
     const data = await llamaRes.json();
-    console.log('Received response from Llama API:', data);
 
     // Save AI response
     await createMessage(user.id, conversation.id, data.response, true);

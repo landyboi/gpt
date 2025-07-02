@@ -35,6 +35,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Update last login time
+    await prisma.users.update({
+      where: { id: user.id },
+      data: { last_login: new Date() },
+    });
+
     // Create session
     const sessionToken = uuidv4();
     await prisma.sessions.create({
@@ -47,13 +53,12 @@ export async function POST(req: NextRequest) {
 
     // Set session cookie
     const cookieStore = await cookies();
-    const isProduction = process.env.NODE_ENV === "production";
-    console.log('Setting cookie. NODE_ENV:', process.env.NODE_ENV, 'secure:', isProduction);
     cookieStore.set("session", sessionToken, {
       httpOnly: true,
-      secure: isProduction,
+      secure: false, // Disable secure for local development
       sameSite: "lax",
       maxAge: 7 * 24 * 60 * 60, // 7 days
+      path: "/", // Ensure cookie is available for all paths
     });
 
     return NextResponse.json({ success: true });
