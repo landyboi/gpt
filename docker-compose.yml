@@ -54,6 +54,10 @@ services:
       - ollama_data:/root/.ollama
     entrypoint: ["/usr/bin/ollama"]
     command: ["serve"]
+    # Disable automatic updates and external connections
+    environment:
+      - OLLAMA_ORIGINS=*
+      - OLLAMA_DEBUG=false
 
   postgres:
     image: postgres:latest
